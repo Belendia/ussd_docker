@@ -17,7 +17,7 @@ services:
     container_name: flare_web
     build:
       context: .
-      dockerfile: ./ussd-be/Dockerfile
+      dockerfile: ./ussd_be/Dockerfile
     command: >
       sh -c "wait-for db:5432 
       && python /code/manage.py collectstatic --no-input
@@ -30,9 +30,9 @@ services:
       && python /code/manage.py initconfig 
       && gunicorn flare.wsgi -b 0.0.0.0:8000"
     volumes:
-      - ./ussd-be:/code
-      - ./ussd-be/staticfiles/admin:/usr/share/nginx/html/static/admin
-      - ./ussd-be/staticfiles/rest_framework:/usr/share/nginx/html/static/rest_framework
+      - ./ussd_be:/code
+      - ./ussd_be/staticfiles/admin:/usr/share/nginx/html/static/admin
+      - ./ussd_be/staticfiles/rest_framework:/usr/share/nginx/html/static/rest_framework
     ports:
       - "8000:8000"
     depends_on:
@@ -44,12 +44,12 @@ services:
     container_name: flare_celery_worker
     build:
       context: .
-      dockerfile: ./ussd-be/Dockerfile
+      dockerfile: ./ussd_be/Dockerfile
     command: >
       sh -c "wait-for db:5432 && wait-for web:8000
       && celery -A flare  worker -l info"
     volumes:
-      - ./ussd-be:/code
+      - ./ussd_be:/code
     depends_on:
       - db
       - redis
@@ -60,12 +60,12 @@ services:
     container_name: flare_celery_beat
     build:
       context: .
-      dockerfile: ./ussd-be/Dockerfile
+      dockerfile: ./ussd_be/Dockerfile
     command: >
       sh -c "wait-for db:5432 && wait-for web:8000
       && celery -A flare beat -l INFO --scheduler django_celery_beat.schedulers:DatabaseScheduler"
     volumes:
-      - ./ussd-be:/code
+      - ./ussd_be:/code
     depends_on:
       - db
       - redis
@@ -82,8 +82,8 @@ services:
     ports:
       - "8999:8999"
     volumes:
-      - ./ussd-be/staticfiles/admin:/usr/share/nginx/html/static/admin
-      - ./ussd-be/staticfiles/rest_framework:/usr/share/nginx/html/static/rest_framework
+      - ./ussd_be/staticfiles/admin:/usr/share/nginx/html/static/admin
+      - ./ussd_be/staticfiles/rest_framework:/usr/share/nginx/html/static/rest_framework
     depends_on:
       - web
 
