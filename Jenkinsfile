@@ -6,7 +6,7 @@ pipeline {
     stages {
         stage('Prep frontend') {
             steps {
-                dir('ussd-fe') {
+                dir('ussd_fe') {
                     sh 'npm install'
                     sh 'npm run build'
                 }          
