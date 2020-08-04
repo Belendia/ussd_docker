@@ -1,26 +1,26 @@
 version: "3"
 
 services:
-  db:
-    image: postgres:9.6.5
-    environment:
-      - POSTGRES_DB=flare
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres123882
-    volumes:
-      - postgres_data:/var/lib/postgresql/data/
+  # db:
+  #   image: postgres:9.6.5
+  #   environment:
+  #     - POSTGRES_DB=flare
+  #     - POSTGRES_USER=postgres
+  #     - POSTGRES_PASSWORD=postgres123882
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data/
   # Redis
   redis:
     image: redis:6.0.1-alpine
     restart: on-failure
+
   web:
     container_name: flare_web
     build:
       context: .
       dockerfile: ./ussd_be/Dockerfile
     command: >
-      sh -c "wait-for db:5432 
-      && python /code/manage.py collectstatic --no-input
+      sh -c "python /code/manage.py collectstatic --no-input
       && python /code/manage.py makemigrations 
       && python /code/manage.py migrate  --noinput 
       && python /code/manage.py initadmin 
@@ -35,8 +35,6 @@ services:
       - ./ussd_be/staticfiles/rest_framework:/usr/share/nginx/html/static/rest_framework
     ports:
       - "8000:8000"
-    depends_on:
-      - db
     restart: on-failure
 
   # Celery worker
@@ -46,12 +44,11 @@ services:
       context: .
       dockerfile: ./ussd_be/Dockerfile
     command: >
-      sh -c "wait-for db:5432 && wait-for web:8000
+      sh -c "wait-for redis:6379 && wait-for web:8000
       && celery -A flare  worker -l info"
     volumes:
       - ./ussd_be:/code
     depends_on:
-      - db
       - redis
       - web
     restart: on-failure
@@ -62,12 +59,11 @@ services:
       context: .
       dockerfile: ./ussd_be/Dockerfile
     command: >
-      sh -c "wait-for db:5432 && wait-for web:8000
+      sh -c "wait-for redis:6379 && wait-for web:8000
       && celery -A flare beat -l INFO --scheduler django_celery_beat.schedulers:DatabaseScheduler"
     volumes:
       - ./ussd_be:/code
     depends_on:
-      - db
       - redis
       - web
     restart: on-failure
@@ -86,6 +82,5 @@ services:
       - ./ussd_be/staticfiles/rest_framework:/usr/share/nginx/html/static/rest_framework
     depends_on:
       - web
-
-volumes:
-  postgres_data:
+# volumes:
+#   postgres_data:
