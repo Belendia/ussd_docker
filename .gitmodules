@@ -1,6 +1,6 @@
 [submodule "ussd_fe"]
 	path = ussd_fe
-	url = https://BelendiaSerda@bitbucket.org/hadmin/ussd_fe.git
+	url = https://github.com/Belendia/ussd_fe.git
 [submodule "ussd_be"]
 	path = ussd_be
-	url = https://BelendiaSerda@bitbucket.org/hadmin/ussd_be.git
+	url = https://github.com/Belendia/ussd_be.git
